@@ -12,8 +12,6 @@ moment.locale('zh-cn');
 
 import {getUserId} from '../utils';
 
-const {width} = Dimensions.get('window');
-
 class MyInfoRead extends Component {
 	constructor(props){
 		super(props);

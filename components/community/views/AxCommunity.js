@@ -68,7 +68,7 @@ class AxCommunity extends React.Component {
 						<TouchableOpacity key={item._id}
 										  style={styles.axImgView}
 										  onPress={() => this.toDetail(item._id)}>
-							<Image source={{uri: item.ax[0].url}} style={styles.axImg}/>
+							<Image source={{uri: item.ax.name}} style={styles.axImg}/>
 						</TouchableOpacity>
 					))}
 				</View>
@@ -78,6 +78,8 @@ class AxCommunity extends React.Component {
 }
 
 AxCommunity.propTypes = {
+	id: [PropTypes.number, PropTypes.string],
+	navigation: PropTypes.object,
 	axListCommunity: PropTypes.array,     //社区斧头列表
 	getAxListByCommunity: PropTypes.func, //获取社区斧头列表
 };

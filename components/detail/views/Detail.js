@@ -2,7 +2,6 @@ import React from 'react';
 import {
 	View,
 	Text,
-	ScrollView,
 	StyleSheet,
 	Image,
 	Dimensions,
@@ -12,8 +11,10 @@ import {
 	Avatar,
 	Button
 } from 'react-native-elements';
+import ParallaxScrollView from 'react-native-parallax-scroll-view';
 import PropTypes from 'prop-types';
 import moment from 'moment';
+import LottieView from 'lottie-react-native';
 import {FontAwesome} from '@expo/vector-icons';
 import {getUserId} from '../utils';
 import Colors from '../constants/Colors';
@@ -113,21 +114,27 @@ class AxDetail extends React.Component{
 		const { axDetail, isPraised, commentList, isCollected } = this.props;
 		let {avatar} = this.state;
 
-		let ax = axDetail&& axDetail.ax[0];
+		let ax = axDetail&& axDetail.ax;
+		let imgHeight = width * ax?.h / ax?.w;
 		if(ax){
-			let axUrl = ax? {uri: ax.url}: this.state.axDefault;
-			showImg = <Image source={axUrl}
-							 style={{width: width, height: width * ax.height / ax.width}}
+			let axUrl = ax? {uri: ax.name}: this.state.axDefault;
+			showImg = <Image source={axUrl} style={{width: width, height: imgHeight}}
 			/>
 		}
 
 		return (
 			<View style={{flex: 1}}>
-				<ScrollView style={styles.content}>
-					{ax && <>
+				{axDetail && <ParallaxScrollView
+					headerBackgroundColor="#333"
+					backgroundColor={Colors.tabIconDefault}
+					contentBackgroundColor={Colors.grayBg}
+					parallaxHeaderHeight={imgHeight}
+					renderForeground={() => (
 						<View>
 							{showImg}
 						</View>
+					)}>
+					<View>
 						<View style={styles.axInfo}>
 							<View style={styles.axInfoAvatar}>
 								<Avatar
@@ -144,9 +151,6 @@ class AxDetail extends React.Component{
 								</View>
 
 							</View>
-							{/*<Text>
-							{axDetail.title}
-						</Text>*/}
 							<Text style={styles.axContent}>
 								{axDetail.content}
 							</Text>
@@ -191,44 +195,46 @@ class AxDetail extends React.Component{
 								}
 							</View>
 						</View>
-					</>}
-
-					{commentList.length > 0 &&
-					<View style={styles.commentContent}>
-						<Text>
-							评论 ({ commentList.length })
-						</Text>
-						{
-							commentList.map(item => (
-								<View key={item._id} style={styles.comment}>
-									<View style={styles.commentAvatar}>
-										<Avatar
-											containerStyle={styles.commentAvatarItem}
-											rounded
-											source={item.user.avatar?{uri: item.user.avatar}:avatar}
-											onPress={() => this.toUserMainPage(item.user._id)}
-										/>
-										<Text style={styles.commentUserText}>{item.user.username?item.user.username:item.user.nickname}</Text>
-										<Text>{item.user.location?item.user.location: ''}</Text>
-									</View>
-									<View style={styles.commentItem}>
-										<Text style={styles.commentItemText}>{item.content}</Text>
-										<Text style={styles.commentItemTime}>
-											{moment(item.create_time).format('MMMM Do YYYY, h:mm')}
-										</Text>
-										<Button title="回复"
+						{commentList.length > 0 &&
+						<View style={styles.commentContent}>
+							<Text>
+								评论 ({ commentList.length })
+							</Text>
+							{
+								commentList.map(item => (
+									<View key={item._id} style={styles.comment}>
+										<View style={styles.commentAvatar}>
+											<Avatar
+												containerStyle={styles.commentAvatarItem}
+												rounded
+												source={item.user.avatar?{uri: item.user.avatar}:avatar}
+												onPress={() => this.toUserMainPage(item.user._id)}
+											/>
+											<Text style={styles.commentUserText}>{item.user.username?item.user.username:item.user.nickname}</Text>
+											<Text>{item.user.location?item.user.location: ''}</Text>
+										</View>
+										<View style={styles.commentItem}>
+											<Text style={styles.commentItemText}>{item.content}</Text>
+											<Text style={styles.commentItemTime}>
+												{moment(item.create_time).format('MMMM Do YYYY, h:mm')}
+											</Text>
+											<Button title="回复"
 												type="clear"
 												buttonStyle={styles.commentItemButton}
 												titleStyle={{fontSize: 12, color: Colors.grayText}}
 												onPress={this.replay} />
+										</View>
 									</View>
-								</View>
-							))
-						}
+								))
+							}
+						</View>}
 					</View>
-					}
+				</ParallaxScrollView>}
 
-				</ScrollView>
+				{!axDetail &&
+					<LottieView source={require('../animation/loading1.json')} autoPlay loop />
+				}
+
 				<View style={styles.bottom}>
 					<TextInput style={styles.commentInput}
 							   placeholder="写评论"
@@ -259,6 +265,8 @@ AxDetail.propTypes = {
 	isCollect: PropTypes.func,      //判断是否收藏
 	collect: PropTypes.func,        //收藏
 	removeCollect: PropTypes.func,  //取消收藏
+	route: PropTypes.object,
+	navigation: PropTypes.object
 }
 
 const styles = StyleSheet.create({
@@ -273,7 +281,7 @@ const styles = StyleSheet.create({
 	},
 	axInfoAvatar: {
 		flexDirection: 'row',
-		marginTop: -35
+		marginTop: -10
 	},
 	axInfoAvatarText: {
 		justifyContent: 'flex-end',

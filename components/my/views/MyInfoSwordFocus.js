@@ -74,6 +74,7 @@ class MyInfoSwordFocus extends Component {
 MyInfoSwordFocus.propTypes = {
 	focusUserList: PropTypes.array, //关注用户列表
 	getFocusList: PropTypes.func,   //获取关注用户列表
+	navigation: PropTypes.object
 }
 
 const styles = StyleSheet.create({

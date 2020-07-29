@@ -11,8 +11,6 @@ import PropTypes from 'prop-types';
 import { ListItem } from 'react-native-elements'
 import {getUserId} from '../utils';
 
-const {	width } = Dimensions.get('window');
-
 class Focus extends Component {
 	constructor(props){
 		super(props);
@@ -74,6 +72,7 @@ class Focus extends Component {
 Focus.propTypes = {
 	focusUserList: PropTypes.array, //关注用户列表
 	getFocusList: PropTypes.func,   //获取关注用户列表
+	navigation: PropTypes.object
 }
 
 const styles = StyleSheet.create({

@@ -1,7 +1,6 @@
 import React from 'react';
 import {
 	View,
-	Button,
 	Text,
 	ScrollView,
 	StyleSheet,
@@ -13,9 +12,8 @@ import PropTypes from 'prop-types';
 import moment from 'moment';
 import {getUserId} from '../utils';
 import Colors from '../constants/Colors';
-const {width, height} = Dimensions.get('window');
 
-class History extends React.Component {
+class Collection extends React.Component {
 	constructor(props) {
 		super(props);
 
@@ -24,31 +22,31 @@ class History extends React.Component {
 
 	async componentDidMount() {
 		let id = await getUserId();
-		this.props.getAxReadListByUser(id);
+		this.props.getCollection(id);
 	}
 
 	//跳转至详情
 	toDetail(id) {
-		this.props.navigation.navigate('AxDetail', {id});
+		this.props.navigation.navigate('Detail', {id});
 	}
 
 	render() {
-		const {axReadListUser} = this.props;
+		const {collectionList} = this.props;
 		return (
 			<ScrollView>
-				{axReadListUser.length == 0 ?
+				{collectionList.length == 0 ?
 					<View style={styles.content}>
 						<Text>
 							暂无内容
-							赶快去分享你的生活状态吧
+							赶快去收藏吧
 						</Text>
 					</View> :
 					<View style={styles.axContent}>
-						{axReadListUser.map(item => (
+						{collectionList.map(item => (
 							<TouchableOpacity key={item._id}
 											  style={styles.axReadView}
 											  onPress={() => this.toDetail(item.ax._id)}>
-								<Image source={{uri: item.ax.ax[0].url}} style={styles.axImg} />
+								<Image source={{uri: item.ax.ax.name}} style={styles.axImg} />
 								<View style={styles.axReadInfo} >
 									<Text style={styles.axReadInfoTitle} >{item.ax.title}</Text>
 									<Text style={styles.axReadInfoTime}>
@@ -65,9 +63,10 @@ class History extends React.Component {
 	}
 }
 
-History.propTypes = {
-	axReadListUser: PropTypes.array,     //用户浏览记录
-	getAxReadListByUser: PropTypes.func, //获取用户浏览记录
+Collection.propTypes = {
+	collectionList: PropTypes.array, //用户收藏列表
+	getCollection: PropTypes.func,   //获取用户收藏列表
+	navigation: PropTypes.object
 }
 
 const styles = StyleSheet.create({
@@ -107,4 +106,4 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default History;
+export default Collection;

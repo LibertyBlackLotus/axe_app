@@ -83,6 +83,7 @@ class MyInfoSwordPublish extends Component {
 MyInfoSwordPublish.propTypes = {
 	userSwordList: PropTypes.array,    //用户宝剑列表
 	getSwordListByUser: PropTypes.func, //获取用户宝剑列表
+	navigation: PropTypes.object
 }
 
 const styles = StyleSheet.create({

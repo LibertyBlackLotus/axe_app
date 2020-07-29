@@ -20,7 +20,7 @@ class UserMainPage extends React.Component{
 			id: null,     //访问的用户id
 			userId: null, //当前登录用户id
 			avatar: require('../assets/avatar.png'),
-			bgImg: require('../assets/show.jpg')
+			bgImg: require('../assets/show1.jpg')
 		};
 
 		this.followed = this.followed.bind(this);
@@ -82,8 +82,8 @@ class UserMainPage extends React.Component{
 					<Text style={styles.username}>{data.nickname? data.nickname: data.username}</Text>
 					{id != userId && (
 						isFollowed?
-						<Button title="已关注" onPress={this.removeFollowed} />:
-						<Button title="关注" onPress={this.followed}  />
+							<Button title="已关注" onPress={this.removeFollowed} />:
+							<Button title="关注" onPress={this.followed}  />
 					)}
 				</View>
 			</View>
@@ -98,6 +98,7 @@ UserMainPage.propTypes = {
 	followed: PropTypes.func,       //关注
 	removeFollowed: PropTypes.func, //取消关注
 	isFollow: PropTypes.func,       //判断是否关注
+	route: PropTypes.object
 };
 
 const styles = StyleSheet.create({

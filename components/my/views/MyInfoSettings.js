@@ -3,8 +3,6 @@ import {
 	View,
 	StyleSheet,
 	Modal,
-	Text,
-	TouchableHighlight,
 	TextInput
 } from 'react-native';
 import {
@@ -157,8 +155,8 @@ class MyInfoSettings extends Component {
 					</>
 				}
 				<Button title="退出登录"
-						buttonStyle={{backgroundColor: Colors.tintColor}}
-						onPress={this.logout} />
+					buttonStyle={{backgroundColor: Colors.tintColor}}
+					onPress={this.logout} />
 
 				<Modal
 					animationType="slide"
@@ -179,11 +177,11 @@ class MyInfoSettings extends Component {
 							/>
 							<View style={styles.modalPanel}>
 								<Button title="确定"
-										buttonStyle={{backgroundColor: Colors.tintColor}}
-										onPress={() => this.modifyUserInfo('nickname')} />
+									buttonStyle={{backgroundColor: Colors.tintColor}}
+									onPress={() => this.modifyUserInfo('nickname')} />
 								<Button title="取消"
-										buttonStyle={{backgroundColor: '#ccc'}}
-										onPress={() => this.setModalVisible(false)} />
+									buttonStyle={{backgroundColor: '#ccc'}}
+									onPress={() => this.setModalVisible(false)} />
 							</View>
 
 						</View>
@@ -197,8 +195,8 @@ class MyInfoSettings extends Component {
 
 MyInfoSettings.propTypes = {
 	modifyUserInfo: PropTypes.func, //更换头像
-	logout: PropTypes.func //退出登录
-
+	logout: PropTypes.func, //退出登录
+	navigation: PropTypes.object
 };
 
 const styles = StyleSheet.create({
