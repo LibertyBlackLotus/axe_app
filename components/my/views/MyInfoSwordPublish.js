@@ -12,7 +12,7 @@ import PropTypes from 'prop-types';
 import Video from 'react-native-video';
 // import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import {FontAwesome} from '@expo/vector-icons';
-import {getUserId} from '../utils';
+import {getUserId} from '../../../utils';
 
 const {	width } = Dimensions.get('window');
 
@@ -22,7 +22,7 @@ class MyInfoSwordPublish extends Component {
 		this.state = {
 			resizeMode: 'stretch',
 			paused: true,
-			avatar: require('../assets/avatar.png'),
+			avatar: require('../../../assets/avatar.png'),
 		};
 
 		this.showVideo = this.showVideo.bind(this);

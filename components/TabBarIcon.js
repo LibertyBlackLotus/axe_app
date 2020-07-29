@@ -1,5 +1,6 @@
 import {AntDesign} from '@expo/vector-icons';
-import * as React from 'react';
+import PropTypes from 'prop-types';
+import React from 'react';
 
 import Colors from '../constants/Colors';
 
@@ -13,3 +14,8 @@ export default function TabBarIcon(props) {
 		/>
 	);
 }
+TabBarIcon.propTypes = {
+	name: PropTypes.string,
+	focused: PropTypes.bool,
+}
+

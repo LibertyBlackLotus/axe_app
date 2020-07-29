@@ -9,9 +9,36 @@ import {
 	Button
 } from 'react-native';
 import PropTypes from 'prop-types';
-import {getUserId} from '../utils';
+import {getUserId} from '../../../utils';
+import http from "../../../store/server";
+import {API_FOLLOWS, API_USER} from "../../../store/apiUrl";
+import {user, userFollows} from "../../../store/actions";
+import {connect} from "react-redux";
+import SettingList from "../../my/views/SettingList";
+import Ax from "../../my/views/Ax";
+import ParallaxScrollView from "react-native-parallax-scroll-view";
+import Colors from "../../../constants/Colors";
+import Info from "./Info";
 
 const {width} = Dimensions.get('window');
+
+const Header = (props) => {
+	const {userInfo} = props;
+	const avatar = require('../../../assets/avatar.png');
+	let uri = userInfo&&userInfo.avatar? {uri: userInfo.avatar}: avatar;
+	return (
+		<View style={styles.userInfoHeader}>
+			<View style={styles.place}></View>
+			<View style={styles.headerShow}>
+				<Image style={styles.avatar} source={uri} />
+				<Text>{userInfo.nickname}</Text>
+			</View>
+		</View>
+	);
+}
+Header.propTypes = {
+	userInfo: PropTypes.object
+}
 
 class UserMainPage extends React.Component{
 	constructor(props) {
@@ -19,8 +46,8 @@ class UserMainPage extends React.Component{
 		this.state = {
 			id: null,     //访问的用户id
 			userId: null, //当前登录用户id
-			avatar: require('../assets/avatar.png'),
-			bgImg: require('../assets/show1.jpg')
+			avatar: require('../../../assets/avatar.png'),
+			bgImg: require('../../../assets/show1.jpg')
 		};
 
 		this.followed = this.followed.bind(this);
@@ -75,7 +102,22 @@ class UserMainPage extends React.Component{
 		let {id, userId} = this.state;
 		return (
 			<View style={styles.myInfo}>
-				<ImageBackground source={this.state.bgImg} style={styles.bgImage} />
+				<ParallaxScrollView
+					backgroundColor={Colors.tabIconDefault}
+					parallaxHeaderHeight={200}
+					renderStickyHeader={() => <Header userInfo={data} /> }
+					stickyHeaderHeight={65}
+					headerBackgroundColor={Colors.whiteBg}
+					renderForeground={() => <Info id={id} userId={userId}
+												  isFollowed={isFollowed}
+												  userInfo={data} {...this.props} /> } >
+
+					{/*<SettingList {...this.props} />*/}
+					{/*<Ax id={id} {...this.props} />*/}
+
+				</ParallaxScrollView>
+
+				{/*<ImageBackground source={this.state.bgImg} style={styles.bgImage} />
 				<View style={styles.avatarContent}>
 					<Image style={styles.avatar}
 						   source={uri} />
@@ -86,6 +128,10 @@ class UserMainPage extends React.Component{
 							<Button title="关注" onPress={this.followed}  />
 					)}
 				</View>
+
+
+				<SettingList {...this.props} />
+				<Ax id={id} {...this.props} />*/}
 			</View>
 		);
 	}
@@ -131,4 +177,46 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default UserMainPage;
+const mapStateToProps = (state) => {
+	return {
+		data: state.user.data,     //用户信息
+		isFollowed: state.userFollows.isFollowed,  //是否关注
+	}
+}
+
+const mapDispatchToProps = (dispatch) => {
+	return {
+		/* 获取用户信息 */
+		getUserInfo: (id) => {
+			return http({url: API_USER + `/${id}`}).then(res => {
+				dispatch(user.getUserInfo(res));
+				return Promise.resolve(res);
+			});
+		},
+
+		/* 关注 */
+		followed: (data) => {
+			http({method: 'POST', url: API_FOLLOWS, data}).then(res => {
+				dispatch(userFollows.followed(res));
+			});
+		},
+
+		/* 取消关注 */
+		removeFollowed: (data) => {
+			http({method: 'DELETE', url: API_FOLLOWS, data}).then(res => {
+				dispatch(userFollows.removeFollowed(res));
+			});
+		},
+
+		/* 是否关注 */
+		isFollow: (data) => {
+			http({method: 'POST', url: API_FOLLOWS + '/isFollowed', data}).then(res => {
+				dispatch(userFollows.isFollow(res));
+			});
+		},
+
+
+	}
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(UserMainPage);

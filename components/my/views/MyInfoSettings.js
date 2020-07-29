@@ -12,17 +12,20 @@ import {
 import PropTypes from 'prop-types';
 import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
-import Colors from '../constants/Colors';
-import {getUserInfo} from '../utils';
+import Colors from '../../../constants/Colors';
+import {getUserInfo} from '../../../utils';
+import {Rpc} from "../../../utils/qiniu";
+import {qiniuUrl} from "../../../store/config";
 
 class MyInfoSettings extends Component {
 	constructor(props){
 		super(props);
 		this.state = {
 			userInfo: null,
-			avatar: require('../assets/avatar.png'),
+			avatar: require('../../../assets/avatar.png'),
 			modalVisible: false,
-			nickname: ''
+			nickname: '',
+			progress: 0,
 		};
 
 		this.logout = this.logout.bind(this);
@@ -59,13 +62,51 @@ class MyInfoSettings extends Component {
 				let { userInfo } = this.state;
 				userInfo.avatar = uri;
 				this.setState({ userInfo });
-				this.uploadAvatar(uri);  //上传头像
+				// this.uploadAvatar(uri);  //上传头像
+				this.uploadQiniu(uri);  //上传七牛云
 			}
 			console.log(result);
 
 		} catch (E) {
 			console.log(E);
 		}
+	}
+
+	uploadQiniu(image){
+		let name = image.slice(image.lastIndexOf('/') + 1);
+		let params = {
+			uri: image, //图片路径  可以通过第三方工具 如:ImageCropPicker等获取本地图片路径
+			key: name,  //要上传的key
+		}
+		//构建上传策略
+		let policy = {
+			scope: "axe",  //记得这里如果格式为<bucket>:<key>形式的话,key要与params里的key保持一致,详见七牛上传策略
+			returnBody:    //returnBody 详见上传策略
+				{
+					name: "$(fname)",         //获取文件名
+					size: "$(fsize)",         //获取文件大小
+					w: "$(imageInfo.width)",  //宽
+					h: "$(imageInfo.height)", //高
+					hash: "$(etag)",          //etag
+				},
+		}
+
+		Rpc.uploadFile(params, policy, (progress) => {
+			this.setState({progress});
+		}).then( data => {
+			this.setState({progress: '', upload: false});
+			let ax = data;
+			let params = {
+				_id: this.state.userInfo._id,
+				avatar: qiniuUrl + ax.name
+			};
+			this.props.modifyUserInfo(params).then(res => {
+				this.setState({ userInfo: res.after });
+				global.storeData('userInfo', JSON.stringify(res.after));
+			});
+		}).catch( err => {
+			console.log('--err--->', err);
+		});
 	}
 
 	//上传头像
@@ -84,7 +125,7 @@ class MyInfoSettings extends Component {
 			};
 			this.props.modifyUserInfo(params).then(res => {
 				this.setState({ userInfo: res.after });
-				global.storeData('userInfo', res.after);
+				global.storeData('userInfo', JSON.stringify(res.after));
 			});
 		}).catch(error => {
 			console.log(error);
@@ -100,7 +141,7 @@ class MyInfoSettings extends Component {
 		};
 		this.props.modifyUserInfo(params).then(res => {
 			this.setState({ userInfo: res.after });
-			global.storeData('userInfo', res.after);
+			global.storeData('userInfo', JSON.stringify(res.after));
 		});
 	}
 

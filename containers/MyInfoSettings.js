@@ -8,7 +8,7 @@ import {
 	API_USER
 } from '../store/apiUrl';
 
-import MyInfoSettings from '../components/MyInfoSettings';
+import MyInfoSettings from '../components/my/views/MyInfoSettings';
 
 const mapStateToProps = (state) => {
 	return {

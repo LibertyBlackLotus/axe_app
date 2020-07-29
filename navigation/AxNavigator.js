@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {createStackNavigator} from '@react-navigation/stack';
 import Colors from '../constants/Colors'
-import AxAdd from '../containers/AxAdd';
+import {view as AxAdd} from '../components/axeAdd';
 const Stack = createStackNavigator();
 
 class AxNavigator extends Component {

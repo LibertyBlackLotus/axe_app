@@ -12,6 +12,7 @@ import My from '../navigation/MyNavigator';
 const BottomTab = createBottomTabNavigator();
 const INITIAL_ROUTE_NAME = 'Home';
 
+// eslint-disable-next-line react/prop-types
 export default function BottomTabNavigator({navigation, route}) {
 	return (
 		<BottomTab.Navigator initialRouteName={INITIAL_ROUTE_NAME}
@@ -24,6 +25,7 @@ export default function BottomTabNavigator({navigation, route}) {
 				component={Home}
 				options={{
 					title: '首页',
+					// eslint-disable-next-line react/prop-types,react/display-name
 					tabBarIcon: ({focused}) => <TabBarIcon focused={focused} name="home"/>,
 				}}
 			/>
@@ -32,10 +34,11 @@ export default function BottomTabNavigator({navigation, route}) {
 				component={CommunityNavigator}
 				options={{
 					title: '社区',
+					// eslint-disable-next-line react/prop-types,react/display-name
 					tabBarIcon: ({focused}) =>
 						<MaterialCommunityIcons name="group"
-												size={25}
-												color={focused ? Colors.tabIconSelected : Colors.tabIconDefault} />,
+							size={25}
+							color={focused ? Colors.tabIconSelected : Colors.tabIconDefault} />,
 				}}
 			/>
 			<BottomTab.Screen
@@ -43,10 +46,11 @@ export default function BottomTabNavigator({navigation, route}) {
 				component={Ax}
 				options={{
 					title: '斧头',
+					// eslint-disable-next-line react/prop-types,react/display-name
 					tabBarIcon: ({focused}) =>
 						<MaterialCommunityIcons name="axe"
-												size={25}
-												color={focused ? Colors.tabIconSelected : Colors.tabIconDefault} />,
+							size={25}
+							color={focused ? Colors.tabIconSelected : Colors.tabIconDefault} />,
 				}}
 			/>
 			<BottomTab.Screen
@@ -54,10 +58,11 @@ export default function BottomTabNavigator({navigation, route}) {
 				component={TopicNavigator}
 				options={{
 					title: '话题',
+					// eslint-disable-next-line react/prop-types,react/display-name
 					tabBarIcon: ({focused}) =>
 						<MaterialCommunityIcons name="account-group"
-												size={25}
-												color={focused ? Colors.tabIconSelected : Colors.tabIconDefault} />,
+							size={25}
+							color={focused ? Colors.tabIconSelected : Colors.tabIconDefault} />,
 				}}
 			/>
 			<BottomTab.Screen
@@ -65,6 +70,7 @@ export default function BottomTabNavigator({navigation, route}) {
 				component={My}
 				options={{
 					title: '我的',
+					// eslint-disable-next-line react/prop-types,react/display-name
 					tabBarIcon: ({focused}) => <TabBarIcon focused={focused} name="user"/>,
 					unmountOnBlur: true
 				}}

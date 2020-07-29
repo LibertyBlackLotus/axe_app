@@ -13,10 +13,10 @@
     "scheme": "myapp",
     "splash": {
       "image": "./assets/images/splash.png",
-      "resizeMode": "contain",
+      "resizeMode": "cover",
       "backgroundColor": "#ffffff"
     },
-    "sdkVersion": "21.0.0",
+    "sdkVersion": "37.0.0",
     "updates": {
       "fallbackToCacheTimeout": 0
     },
@@ -24,10 +24,12 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "android"
     },
     "android": {
-      "package": "com.lin.axe"
-    }
+      "package": "com.bitship.lin"
+    },
+    "entryPoint": "node_modules/expo/AppEntry.js"
   }
 }

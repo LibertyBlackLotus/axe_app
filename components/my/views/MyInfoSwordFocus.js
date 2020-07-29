@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import PropTypes from 'prop-types';
 import { ListItem } from 'react-native-elements';
-import {getUserId} from '../utils';
+import {getUserId} from '../../../utils';
 
 const {	width } = Dimensions.get('window');
 
@@ -17,7 +17,7 @@ class MyInfoSwordFocus extends Component {
 	constructor(props){
 		super(props);
 		this.state = {
-			avatar: require('../assets/avatar.png'),
+			avatar: require('../../../assets/avatar.png'),
 			refreshing: false,
 			id: null
 		};

@@ -1,205 +1,58 @@
-import React, {Component, useEffect, useState} from 'react';
+import React from 'react';
 import {
-	View,
 	StyleSheet,
+	View,
 	Text,
-	Image,
-	TouchableOpacity,
-	ImageBackground,
-	Dimensions
+	Dimensions, Image
 } from 'react-native';
 import PropTypes from 'prop-types';
 import ParallaxScrollView from 'react-native-parallax-scroll-view';
-import Colors from "../../constants/Colors";
-import {ListItem} from "react-native-elements";
-import Ax from '../../containers/Ax';
-
+import Colors from "../../../constants/Colors";
+import Info from './Info';
+import SettingList from "./SettingList";
+import Ax from './Ax';
 const {width} = Dimensions.get('window');
 
-//我的信息
-const InfoShow = (props) => {
-	const avatar = require('../../assets/avatar.png');
-	const bgImg = require('../../assets/show.jpg');
-	const {userInfo, navigation} = props;
+const Header = (props) => {
+	const {userInfo} = props;
+	const avatar = require('../../../assets/avatar.png');
 	let uri = userInfo&&userInfo.avatar? {uri: userInfo.avatar}: avatar;
-
-	const toSettings = () => {
-		navigation.navigate('MyInfoSettings');
-	}
-
 	return (
-		<>
-			{userInfo &&
-			<TouchableOpacity style={styles.myInfo} onPress={toSettings}>
-				<ImageBackground source={bgImg} style={styles.bgImage}>
-					<View style={styles.avatarContent}>
-						<Image style={styles.avatar}
-							   source={uri} />
-						<Text style={styles.username}>{userInfo.username}</Text>
-					</View>
-				</ImageBackground>
-			</TouchableOpacity>
-			}
-		</>
+		<View style={styles.userInfoHeader}>
+			<View style={styles.place}></View>
+			<View style={styles.headerShow}>
+				<Image style={styles.avatar} source={uri} />
+				<Text>{userInfo.nickname}</Text>
+			</View>
+		</View>
 	);
 }
-InfoShow.propTypes = {
-	userInfo: PropTypes.object,
-	navigation: PropTypes.object
-}
-
-//设置列表
-const SettingList = (props) => {
-	const {navigation} = props;
-	const list = [
-		{
-			title: '历史'
-		},
-		{
-			title: '关注',
-		},
-		{
-			title: '收藏'
-		},
-	];
-
-	const toPage = (i) => {
-		switch(i){
-		case 0:
-			navigation.navigate('History');
-			break;
-		case 1:
-			navigation.navigate('Focus');
-			break;
-		case 2:
-			navigation.navigate('Collection');
-			break;
-		default:
-		}
-	};
-
-	return (
-		list.map((item, i) => (
-			<ListItem
-				key={i}
-				title={item.title}
-				chevron
-				onPress={() => toPage(i)}
-			/>
-		))
-	);
+Header.propTypes = {
+	userInfo: PropTypes.object
 }
 
 const MyInfoShow = (props) => {
 	const {userInfo} = props;
+
 	return (
 		<>
 			{userInfo &&
 			<ParallaxScrollView
-				headerBackgroundColor="#333"
 				backgroundColor={Colors.tabIconDefault}
-				contentBackgroundColor={Colors.grayBg}
 				parallaxHeaderHeight={200}
-				renderForeground={() => <InfoShow userInfo={userInfo} {...props} /> } >
+				renderStickyHeader={() => <Header userInfo={userInfo} /> }
+				stickyHeaderHeight={65}
+				headerBackgroundColor={Colors.whiteBg}
+				renderForeground={() => <Info userInfo={userInfo} {...props} /> } >
 
 				<SettingList {...props} />
-				<Ax {...props} />
+				<Ax id={userInfo?._id} {...props} />
 
 			</ParallaxScrollView>
 			}
 		</>
 	);
-
 }
-/*class MyInfoShow extends Component {
-	constructor(props){
-		super(props);
-		this.state = {
-			avatar: require('../assets/avatar.png'),
-			bgImg: require('../assets/show.jpg')
-		};
-
-		this.toSettings = this.toSettings.bind(this);
-		this.toPage = this.toPage.bind(this);
-	}
-
-	toSettings(){
-		this.props.navigation.navigate('MyInfoSettings');
-	}
-
-	toPage(i){
-		switch(i){
-		case 0:
-			this.props.navigation.navigate('History');
-			break;
-		case 1:
-			this.props.navigation.navigate('Focus');
-			break;
-		case 2:
-			this.props.navigation.navigate('Collection');
-			break;
-		default:
-		}
-	}
-
-	render() {
-		let userInfo = JSON.parse(this.props.userInfo);
-		let uri = userInfo&&userInfo.avatar? {uri: userInfo.avatar}: this.state.avatar;
-		return (
-			<>
-				{userInfo &&
-					<ParallaxScrollView
-						headerBackgroundColor="#333"
-						backgroundColor={Colors.tabIconDefault}
-						contentBackgroundColor={Colors.grayBg}
-						parallaxHeaderHeight={200}
-						renderForeground={() => (
-							<TouchableOpacity style={styles.myInfo} onPress={this.toSettings}>
-								<ImageBackground source={this.state.bgImg} style={styles.bgImage}>
-									<View style={styles.avatarContent}>
-										<Image style={styles.avatar}
-											   source={uri} />
-										<Text style={styles.username}>{userInfo.username}</Text>
-									</View>
-								</ImageBackground>
-
-							</TouchableOpacity>
-						)}>
-						{list.map((item, i) => (
-							<ListItem
-								key={i}
-								title={item.title}
-								chevron
-								onPress={() => this.toPage(i)}
-							/>
-						))}
-					</ParallaxScrollView>
-				}
-				{/!*{
-					userInfo &&
-					<TouchableOpacity style={styles.myInfo} onPress={this.toSettings}>
-						<ImageBackground source={this.state.bgImg} style={styles.bgImage}>
-							<View style={styles.avatarContent}>
-								<Image style={styles.avatar}
-									   source={uri} />
-								<Text style={styles.username}>{userInfo.username}</Text>
-							</View>
-						</ImageBackground>
-
-					</TouchableOpacity>
-				}
-				{list.map((item, i) => (
-					<ListItem
-						key={i}
-						title={item.title}
-						chevron
-						onPress={() => this.toPage(i)}
-					/>
-				))}*!/}
-			</>
-		);
-	}
-}*/
 
 MyInfoShow.propTypes = {
 	userInfo: PropTypes.object,   //用户信息
@@ -207,33 +60,27 @@ MyInfoShow.propTypes = {
 }
 
 const styles = StyleSheet.create({
-	myInfo: {
-		display: 'flex',
-		justifyContent: 'center',
-		alignItems: 'center',
+	userInfoHeader: {
+		width: width,
+		backgroundColor: Colors.whiteBg,
+		height: 65,
+		paddingLeft: 20,
+		opacity: 0.8
 	},
-	avatarContent: {
+	place: {
+		width: width,
+		height: 25,
+	},
+	headerShow: {
 		flexDirection: 'row',
 		alignItems: 'center',
-		alignSelf: 'flex-start',
-		padding: 10
 	},
 	avatar: {
-		width: 80,
-		height: 80,
-		borderRadius: 40,
+		width: 30,
+		height: 30,
+		borderRadius: 15,
 		marginRight: 10
 	},
-	username: {
-		color: Colors.mainText,
-		fontSize: 20
-	},
-	bgImage: {
-		width: width,
-		height: 200,
-		justifyContent: 'flex-end',
-		alignItems: 'center',
-	}
 });
 
 export default MyInfoShow;

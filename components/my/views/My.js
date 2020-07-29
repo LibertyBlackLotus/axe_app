@@ -4,7 +4,7 @@ import UserInfo from './UserInfo';
 import MyInfoShow from './MyInfoShow';
 
 const My = (props) => {
-	return (<UserInfo render={(userInfo) => <MyInfoShow userInfo={userInfo} {...props} />}	/>);
+	return (<UserInfo render={(userInfo) => <MyInfoShow userInfo={userInfo} {...props} />} {...props} />);
 }
 
 My.propTypes = {

@@ -9,7 +9,6 @@ import {
 	Button
 } from 'react-native-elements';
 import PropTypes from 'prop-types';
-// import TextField from 'react-native-md-textinput';
 import Colors from "../constants/Colors";
 const {height} = Dimensions.get('window');
 
@@ -71,9 +70,9 @@ class Register extends Component{
 					/>
 					<Button title="注册" onPress={this.registerMethod} buttonStyle={styles.buttonView} />
 					<Button title="登录"
-							type={"outline"}
-							onPress={this.toLogin}
-							buttonStyle={styles.buttonView1} />
+						type={"outline"}
+						onPress={this.toLogin}
+						buttonStyle={styles.buttonView1} />
 				</View>
 			</View>
 		);
@@ -82,6 +81,7 @@ class Register extends Component{
 Register.propTypes = {
 	data: PropTypes.object,   //用户信息
 	register: PropTypes.func, //注册
+	navigation: PropTypes.object
 }
 
 const styles = StyleSheet.create({

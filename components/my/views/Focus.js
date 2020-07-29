@@ -9,13 +9,17 @@ import {
 } from 'react-native';
 import PropTypes from 'prop-types';
 import { ListItem } from 'react-native-elements'
-import {getUserId} from '../utils';
+import {getUserId} from '../../../utils';
+import http from "../../../store/server";
+import {API_FOLLOWS} from "../../../store/apiUrl";
+import {userFollows} from "../../../store/actions";
+import {connect} from "react-redux";
 
 class Focus extends Component {
 	constructor(props){
 		super(props);
 		this.state = {
-			avatar: require('../assets/avatar.png'),
+			avatar: require('../../../assets/avatar.png'),
 			refreshing: false,
 			id: null
 		};
@@ -79,4 +83,21 @@ const styles = StyleSheet.create({
 
 });
 
-export default Focus;
+const mapStateToProps = (state) => {
+	return {
+		focusUserList: state.userFollows.focusUserList,     //关注用户列表
+	}
+}
+
+const mapDispatchToProps = (dispatch) => {
+	return {
+		/* 获取关注用户列表 */
+		getFocusList: (id) => {
+			http({url: API_FOLLOWS + `/user/${id}`}).then(res => {
+				dispatch(userFollows.getFocusList(res));
+			});
+		},
+	}
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Focus);

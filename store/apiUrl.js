@@ -7,5 +7,7 @@ export const  API_FOLLOWS = 'userFollows';
 export const  API_COLLECT = 'collect';
 export const  API_CATE = 'cate';
 export const  API_COMMUNITY = 'community';
+export const  API_UPLOAD_TOKEN = 'uploadToken';
+export const  API_SEND_SMS = 'sendSms';
 
 

@@ -8,7 +8,7 @@ import {
 	API_GET_SWORD
 } from '../store/apiUrl';
 
-import MyInfoSwordPublish from '../components/MyInfoSwordPublish';
+import MyInfoSwordPublish from '../components/my/views/MyInfoSwordPublish';
 
 const mapStateToProps = (state) => {
 	return {

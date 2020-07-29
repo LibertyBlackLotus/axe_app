@@ -10,8 +10,12 @@ import {
 } from 'react-native';
 import PropTypes from 'prop-types';
 import moment from 'moment';
-import {getUserId} from '../utils';
-import Colors from '../constants/Colors';
+import {getUserId} from '../../../utils';
+import Colors from '../../../constants/Colors';
+import http from "../../../store/server";
+import {API_COLLECT} from "../../../store/apiUrl";
+import {collection} from "../../../store/actions";
+import {connect} from "react-redux";
 
 class Collection extends React.Component {
 	constructor(props) {
@@ -106,4 +110,21 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default Collection;
+const mapStateToProps = (state) => {
+	return {
+		collectionList: state.collection.collectionList,     //用户收藏列表
+	}
+}
+
+const mapDispatchToProps = (dispatch) => {
+	return {
+		/* 获取用户收藏*/
+		getCollection: (id) => {
+			http({url: API_COLLECT + `/user/${id}`}).then(res => {
+				dispatch(collection.getCollection(res));
+			});
+		}
+	}
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Collection);

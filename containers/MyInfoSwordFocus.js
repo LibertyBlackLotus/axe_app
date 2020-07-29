@@ -8,7 +8,7 @@ import {
 	FOCUS
 } from '../store/apiUrl';
 
-import MyInfoSwordFocus from '../components/MyInfoSwordFocus';
+import MyInfoSwordFocus from '../components/my/views/MyInfoSwordFocus';
 
 const mapStateToProps = (state) => {
 	return {

@@ -1,4 +1,5 @@
 import React from 'react';
+import {connect} from "react-redux";
 import {
 	View,
 	StyleSheet,
@@ -7,7 +8,9 @@ import {
 	TextInput,
 	Text,
 	ActivityIndicator,
-	Dimensions
+	Dimensions,
+	TouchableOpacity,
+	TouchableHighlight
 } from 'react-native';
 import {
 	Button
@@ -20,11 +23,16 @@ import {
 } from 'react-native-popup-menu';
 import PropTypes from 'prop-types';
 import * as ImagePicker from 'expo-image-picker';
-import {getUserId} from '../utils';
-import {baseUrl, qiniuUrl} from '../store/config';
-import Colors from "../constants/Colors";
 
-import {Conf, Rpc} from '../utils/qiniu';
+import {getUserId} from '../../../utils';
+import {baseUrl, qiniuUrl} from '../../../store/config';
+import {ax, community} from "../../../store/actions";
+import Colors from "../../../constants/Colors";
+
+import {Conf, Rpc} from '../../../utils/qiniu';
+import http from "../../../store/server";
+import {API_AX, API_COMMUNITY} from "../../../store/apiUrl";
+
 const {width, height} = Dimensions.get('window');
 
 Conf.ACCESS_KEY = 'kjN4EKiPPIM141av8GHfA8F-eSK8ihWL31LFTbff';
@@ -42,7 +50,6 @@ class AxAdd extends React.Component {
 			content: '',
 			community: null,
 			communityText: '',
-			uploadToken: null,
 			progress: 0,
 			upload: false
 		}
@@ -50,6 +57,7 @@ class AxAdd extends React.Component {
 		this.publishAx = this.publishAx.bind(this);
 		this.handleContentChange = this.handleContentChange.bind(this);
 		this.selectCommunity = this.selectCommunity.bind(this);
+		this.menuTrigger = this.menuTrigger.bind(this);
 	}
 
 	async componentDidMount() {
@@ -88,6 +96,10 @@ class AxAdd extends React.Component {
 			community: item._id,
 			communityText: item.name,
 		});
+	}
+
+	menuTrigger(){
+		this.input.blur();
 	}
 
 	//发布
@@ -181,38 +193,48 @@ class AxAdd extends React.Component {
 		let {communityList} = this.props;
 		let {image, content, communityText, progress, upload} = this.state;
 		return (
-			<View>
+			<View style={styles.content}>
 				{upload && <View style={styles.upload}>
 							   <ActivityIndicator/>
 							   <Text>{progress}%</Text>
 						    </View>
 				}
-				{!upload && <View style={styles.content}>
-					{image && <Image source={{uri: image}} style={{width: 100, height: 100}}/>}
-					{!image &&<Button title="添加图片"
-							type="outline"
-							buttonStyle={styles.addAxButton}
-							onPress={this.pickImage}/>}
+				{!upload && <View>
+					{image &&
+					<TouchableOpacity onPress={this.pickImage} style={styles.selectImg}>
+						<Image source={{uri: image}} style={styles.selectedImg}	/>
+					</TouchableOpacity>}
+
+					{!image &&
+					<Button title="添加图片"
+						type="outline"
+						buttonStyle={styles.addAxButton}
+						onPress={this.pickImage}/>}
 
 					<View class="axDesc">
-						<TextInput placeholder="心情状态,分享生活点滴"
+						<TextInput placeholder="分享生活点滴"
 								   multiline
 								   style={styles.axDesc}
+								   ref={input => this.input = input}
 								   onChangeText={text => this.handleContentChange(text)}
 								   value={content}>
 						</TextInput>
 					</View>
 
 					<Menu style={styles.menuContent}>
-						<MenuTrigger text={`选择社区 ${communityText}`}/>
-						<MenuOptions>
+						<MenuTrigger text={`选择社区 ${communityText}`}
+									 customStyles={{triggerText: styles.triggerText,
+										 TriggerTouchableComponent: TouchableHighlight }}
+									 onPress={this.menuTrigger}/>
+						<MenuOptions optionsContainerStyle={styles.menuOptions}>
 							{communityList &&
 							communityList.map(item => (
 								<MenuOption key={item._id}
 											text={item.name}
+											customStyles={{optionText: styles.optionText,
+												OptionTouchableComponent: TouchableHighlight}}
 											onSelect={() => this.selectCommunity(item)}/>
-							))
-							}
+							))}
 						</MenuOptions>
 					</Menu>
 
@@ -231,26 +253,36 @@ AxAdd.propTypes = {
 	communityList: PropTypes.array,    //社区列表
 	addAx: PropTypes.func,             //创建斧头
 	getCommunityList: PropTypes.func,  //获取社区列表
-	uploadToken: PropTypes.string,
 }
 
 const styles = StyleSheet.create({
 	content: {
-		padding: 10
+		padding: 15
 	},
 	upload: {
 		width,
 		height,
 		justifyContent: 'center',
 		alignItems: 'center',
-		backgroundColor: Colors.grayText
+		backgroundColor: Colors.lineColor,
+		opacity: 0.3
+	},
+	selectImg: {
+		justifyContent: 'center',
+		alignItems: 'center'
+	},
+	selectedImg: {
+		width: width / 2,
+		height: 150,
+		resizeMode: 'contain',
+		borderRadius: 8
 	},
 	addAxButton: {
 		width: 100,
 		height: 100
 	},
 	axDesc: {
-		height: 200
+		minHeight: 150
 	},
 	publishButtonContainer: {
 		alignItems: 'center'
@@ -260,9 +292,49 @@ const styles = StyleSheet.create({
 		backgroundColor: Colors.tintColor
 	},
 	menuContent: {
-		padding: 10,
 		height: 50,
+	},
+	triggerText: {
+		fontSize: 16,
+		color: Colors.tintColor
+	},
+	menuOptions: {
+		borderWidth: 1,
+		borderColor: Colors.tintColor,
+		borderRadius: 8,
+		padding: 8
+	},
+	optionText: {
+		fontSize: 16,
+		color: Colors.tintColor
 	}
 });
 
-export default AxAdd;
+const mapStateToProps = (state) => {
+	return {
+		axListUser: state.ax.axListUser,     //用户斧头列表
+		communityList: state.community.communityList,   //社区列表
+	}
+}
+
+const mapDispatchToProps = (dispatch) => {
+	return {
+		/* 创建斧头 */
+		addAx: (data) => {
+			return http({method: 'POST', url: API_AX, data}).then(res => {
+				dispatch(ax.addAx(res));
+				return Promise.resolve(res);
+			});
+		},
+
+		/* 获取社区列表 */
+		getCommunityList: () => {
+			return http({url: API_COMMUNITY}).then(res => {
+				dispatch(community.getCommunityList(res));
+				return Promise.resolve(res);
+			});
+		},
+	}
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(AxAdd);

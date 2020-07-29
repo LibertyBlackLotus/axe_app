@@ -10,7 +10,7 @@ import PropTypes from 'prop-types';
 import moment from 'moment';
 moment.locale('zh-cn');
 
-import {getUserId} from '../utils';
+import {getUserId} from '../../../utils';
 
 class MyInfoRead extends Component {
 	constructor(props){

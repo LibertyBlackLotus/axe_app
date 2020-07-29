@@ -11,6 +11,7 @@ export const AX = 'AX';
 export const AX_USER = 'AX_USER';
 export const AX_COMMUNITY = 'AX_COMMUNITY';
 export const AX_LIST = 'AX_LIST';
+export const AX_LIST_FOCUS_USER = 'AX_LIST_FOCUS_USER';
 export const AX_USER_ADD = 'AX_USER_ADD';
 export const AX_SEARCH = 'AX_SEARCH';
 export const PRAISE = 'PRAISE';                  //点赞
@@ -30,4 +31,6 @@ export const COLLECT_REMOVE = 'COLLECT_REMOVE';  //取消收藏
 export const COLLECT_LIST = 'COLLECT_LIST';      //收藏列表
 export const CATE_LIST = 'CATE_LIST';  		     //分类
 export const COMMUNITY_LIST = 'COMMUNITY_LIST';  //社区
+
+export const AX_UPLOAD_TOKEN = 'AX_UPLOAD_TOKEN';  //七牛云上传凭证
 

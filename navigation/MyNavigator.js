@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {createStackNavigator} from '@react-navigation/stack';
-import My from '../components/My';
+import {view as My} from '../components/my';
 import Colors from '../constants/Colors'
 
 const Stack = createStackNavigator();

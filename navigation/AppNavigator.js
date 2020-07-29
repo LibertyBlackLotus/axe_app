@@ -4,13 +4,12 @@ import {createStackNavigator} from '@react-navigation/stack';
 
 import BottomTabNavigator from './BottomTabNavigator';
 import LoginNavigator from './LoginNavigator';
-import AxDetail from "../containers/AxDetail";
-import UserMainPage from "../containers/UserMainPage";
-import AxAdd from "../containers/AxAdd";
+import {view as Detail} from "../components/detail";
+import {view as UserMainPage} from "../components/userPage";
 import MyInfoSettings from "../containers/MyInfoSettings";
-import History from "../containers/History";
-import Focus from "../containers/Focus";
-import Collection from "../containers/Collection";
+import History from "../components/my/views/History";
+import Focus from "../components/my/views/Focus";
+import Collection from "../components/my/views/Collection";
 import Search from "../containers/Search";
 import { navigationRef } from '../utils/RootNavigation';
 
@@ -36,8 +35,8 @@ function MyDrawer() {
 							  options={{
 								  headerShown: false
 							  }} />
-				<Stack.Screen name="AxDetail"
-							  component={AxDetail}
+				<Stack.Screen name="Detail"
+							  component={Detail}
 							  options={{
 								  title: '详情',
 								  headerShown: false
@@ -46,11 +45,7 @@ function MyDrawer() {
 							  component={UserMainPage}
 							  options={{
 								  title: '',
-							  }} />
-				<Stack.Screen name="AxAdd"
-							  component={AxAdd}
-							  options={{
-								  title: '创建',
+								  headerShown: false
 							  }} />
 				<Stack.Screen name="MyInfoSettings"
 							  component={MyInfoSettings}

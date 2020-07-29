@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import {connect} from "react-redux";
 import {
 	View,
 	Text,
@@ -9,57 +10,70 @@ import {
 } from 'react-native';
 import PropTypes from 'prop-types';
 import moment from 'moment';
-import {getUserId} from '../utils';
-import Colors from '../constants/Colors';
+import {getUserId} from '../../../utils';
+import Colors from '../../../constants/Colors';
+import http from "../../../store/server";
+import {API_AX_READ} from "../../../store/apiUrl";
+import {read} from "../../../store/actions";
 
-class History extends React.Component {
-	constructor(props) {
-		super(props);
-
-		this.toDetail = this.toDetail.bind(this);
-	}
-
-	async componentDidMount() {
-		let id = await getUserId();
-		this.props.getAxReadListByUser(id);
-	}
+const Item = (props) => {
+	const { item, navigation } = props;
 
 	//跳转至详情
-	toDetail(id) {
-		this.props.navigation.navigate('AxDetail', {id});
+	const toDetail = (id) => {
+		navigation.navigate('Detail', {id});
 	}
 
-	render() {
-		const {axReadListUser} = this.props;
+	return (
+		<TouchableOpacity style={styles.axReadView}
+						  onPress={() => toDetail(item.ax._id)}>
+			<Image source={{uri: item.ax.ax.name}} style={styles.axImg} />
+			<View style={styles.axReadInfo} >
+				<Text style={styles.axReadInfoTitle} >{item.ax.title}</Text>
+				<Text style={styles.axReadInfoTime}>
+					{moment(item.ax.update_time).calendar('days')}
+				</Text>
+			</View>
+		</TouchableOpacity>
+	);
+}
+Item.propTypes = {
+	item: PropTypes.object,
+	navigation: PropTypes.object
+}
+
+
+const History = (props) => {
+	const { axReadListUser, getAxReadListByUser } = props;
+
+	useEffect(() => {
+		async function getId(){
+			let userId = await getUserId();
+			return userId;
+		}
+		getId().then(id => {
+			getAxReadListByUser(id);
+		});
+	}, []);
+
+	if(axReadListUser.length === 0 ){
 		return (
-			<ScrollView>
-				{axReadListUser.length == 0 ?
-					<View style={styles.content}>
-						<Text>
-							暂无内容
-							赶快去分享你的生活状态吧
-						</Text>
-					</View> :
-					<View style={styles.axContent}>
-						{axReadListUser.map(item => (
-							<TouchableOpacity key={item._id}
-											  style={styles.axReadView}
-											  onPress={() => this.toDetail(item.ax._id)}>
-								<Image source={{uri: item.ax.ax.name}} style={styles.axImg} />
-								<View style={styles.axReadInfo} >
-									<Text style={styles.axReadInfoTitle} >{item.ax.title}</Text>
-									<Text style={styles.axReadInfoTime}>
-										{moment(item.ax.update_time).fromNow()}
-									</Text>
-								    {/*<Text style={styles.axReadInfoContent}>{item.ax.content}</Text>*/}
-								</View>
-							</TouchableOpacity>
-						))}
-					</View>
-				}
-			</ScrollView>
+			<View style={styles.content}>
+				<Text>
+					暂无内容
+					赶快去分享你的生活状态吧
+				</Text>
+			</View>
 		);
 	}
+
+	return (
+		<ScrollView>
+			<View style={styles.axContent}>
+				{axReadListUser.map(item => <Item key={item._id} item={item} {...props} />)}
+			</View>
+		</ScrollView>
+	);
 }
 
 History.propTypes = {
@@ -105,4 +119,21 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default History;
+const mapStateToProps = (state) => {
+	return {
+		axReadListUser: state.read.axReadListUser,     //用户浏览记录
+	}
+}
+
+const mapDispatchToProps = (dispatch) => {
+	return {
+		/* 获取用户浏览记录*/
+		getAxReadListByUser: (id) => {
+			http({url: API_AX_READ + `/user/${id}`}).then(res => {
+				dispatch(read.getAxReadListByUser(res));
+			});
+		}
+	}
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(History);

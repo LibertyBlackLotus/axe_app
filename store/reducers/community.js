@@ -4,10 +4,10 @@ import {
 
 const community = (state = {communityList: []}, action) => {
 	switch(action.type){
-		case COMMUNITY_LIST:     //社区列表
-			return Object.assign({}, state, { communityList:  action.communityList });
-		default:
-			return state;
+	case COMMUNITY_LIST:     //社区列表
+		return Object.assign({}, state, { communityList:  action.communityList });
+	default:
+		return state;
 	}
 }
 

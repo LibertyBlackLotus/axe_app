@@ -1,41 +1,62 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
+import {connect} from "react-redux";
 import {
 	View,
 	Text,
 	StyleSheet,
-	Image,
 	Dimensions,
-	TextInput
+	Image,
+	TouchableOpacity
 } from 'react-native';
-import {
-	Avatar,
-	Button
-} from 'react-native-elements';
 import ParallaxScrollView from 'react-native-parallax-scroll-view';
 import PropTypes from 'prop-types';
-import moment from 'moment';
 import LottieView from 'lottie-react-native';
-import {FontAwesome} from '@expo/vector-icons';
-import {getUserId} from '../utils';
-import Colors from '../constants/Colors';
+import {AntDesign, MaterialCommunityIcons} from '@expo/vector-icons';
+import {getUserId} from '../../../utils';
+import Colors from '../../../constants/Colors';
+import http from "../../../store/server";
+import {API_AX, API_AX_READ, API_COMMENT} from "../../../store/apiUrl";
+import {ax, comment} from "../../../store/actions";
+import ImgShow from "./ImgShow";
+import UserShow from './UserShow';
+import InfoShow from "./InfoShow";
+import AddComment from './AddComment';
+import Comments from "./Comments";
+
 const {width, height} = Dimensions.get('window');
 
-class AxDetail extends React.Component{
+const Header = (props) => {
+	const {axDetail, navigation} = props;
+
+	const returnBack = () => {
+		navigation.goBack();
+	}
+
+	return (
+		<View style={styles.detailHeader}>
+			<View style={styles.place}></View>
+			<View style={styles.headerShow}>
+				<TouchableOpacity onPress={returnBack}>
+					<AntDesign name="arrowleft"	size={25} />
+				</TouchableOpacity>
+				<Text style={styles.headerShowText}>{axDetail.content}</Text>
+			</View>
+		</View>
+	);
+}
+Header.propTypes = {
+	axDetail: PropTypes.object,
+	navigation: PropTypes.object,
+}
+
+class Detail extends React.Component{
 	constructor(props) {
 		super(props);
 
 		this.state = {
-			axDefault: require('../assets/axDefault.png'),
-			avatar: require('../assets/avatar.png'),
 			id: '',     //斧头id
 			userId: '',  //当前登录用户id
-			comment: ''  //用户评论
 		};
-
-		this.onChangeComment = this.onChangeComment.bind(this);
-		this.addComment = this.addComment.bind(this);
-		this.replay = this.replay.bind(this);
-		this.toUserMainPage = this.toUserMainPage.bind(this);
 		this.handleMethod = this.handleMethod.bind(this);
 	}
 
@@ -45,9 +66,6 @@ class AxDetail extends React.Component{
 		this.setState({id, userId});
 		this.props.getAxDetail(id);     //获取详情
 		this.handleMethod('addRead');   //添加阅读记录
-		this.handleMethod('isPraise');  //是否点赞
-		this.handleMethod('isCollect'); //是否收藏
-		this.props.getCommentList(id);  //获取评论列表
 	}
 
 	componentDidUpdate(prevProps){
@@ -56,10 +74,6 @@ class AxDetail extends React.Component{
 		if (nowId !== preId) {
 			this.props.getAxDetail(nowId);
 		}
-	}
-
-	componentWillUnmount() {
-
 	}
 
 	//操作
@@ -73,198 +87,54 @@ class AxDetail extends React.Component{
 		this.props[method](params);
 	}
 
-	//添加评论
-	onChangeComment(text){
-		this.setState({
-			comment: text
-		});
-	}
-
-	//发布评论
-	addComment(){
-		let { id, userId, comment } = this.state;
-		let params = {
-			content: comment,
-			ax: id,
-			user: userId
-		};
-		this.props.addComment(params);
-		this.setState({
-			comment: ''
-		});
-	}
-
-	//回复评论
-	replay(){
-		let { id, userId, comment } = this.state;
-		let params = {
-			content: comment,
-			ax: id,
-			user: userId
-		};
-		// this.props.addComment(params);
-	}
-
-	toUserMainPage(id){
-		this.props.navigation.navigate('UserMainPage', {id});
-	}
-
 	render(){
-		let showImg = null;
-		const { axDetail, isPraised, commentList, isCollected } = this.props;
-		let {avatar} = this.state;
-
+		const { axDetail } = this.props;
+		let {id, userId } = this.state;
 		let ax = axDetail&& axDetail.ax;
 		let imgHeight = width * ax?.h / ax?.w;
-		if(ax){
-			let axUrl = ax? {uri: ax.name}: this.state.axDefault;
-			showImg = <Image source={axUrl} style={{width: width, height: imgHeight}}
-			/>
+
+		if(!axDetail || !id || !userId){
+			return (
+				<View style={styles.loading}>
+					<LottieView source={require('../../../animation/loading1.json')} autoPlay loop />
+				</View>
+			);
 		}
 
 		return (
 			<View style={{flex: 1}}>
-				{axDetail && <ParallaxScrollView
-					headerBackgroundColor="#333"
+				<ParallaxScrollView
 					backgroundColor={Colors.tabIconDefault}
-					contentBackgroundColor={Colors.grayBg}
+					contentBackgroundColor={Colors.borderColor}
 					parallaxHeaderHeight={imgHeight}
-					renderForeground={() => (
-						<View>
-							{showImg}
-						</View>
-					)}>
+					renderStickyHeader={() => <Header axDetail={axDetail} {...this.props} /> }
+					stickyHeaderHeight={65}
+					headerBackgroundColor={Colors.whiteBg}
+					renderForeground={() => <ImgShow ax={axDetail.ax} />}>
 					<View>
 						<View style={styles.axInfo}>
-							<View style={styles.axInfoAvatar}>
-								<Avatar
-									size="medium"
-									containerStyle={styles.axAvatarItem}
-									rounded
-									source={axDetail.author.avatar?{uri: axDetail.author.avatar}:avatar}
-									onPress={() => this.toUserMainPage(axDetail.author._id)}
-								/>
-								<View style={styles.axInfoAvatarText}>
-									<Text>
-										{axDetail.author.nickname?axDetail.author.nickname: axDetail.author.username}
-									</Text>
-								</View>
-
-							</View>
+							<UserShow axDetail={axDetail} {...this.props}  />
 							<Text style={styles.axContent}>
 								{axDetail.content}
 							</Text>
-							<Text style={styles.axTime}>
-								创建于 {moment(axDetail.create_time).subtract(0, 'days').calendar()}
-							</Text>
-							<View style={styles.axStatus}>
-								<Text style={styles.axRead}>
-									浏览 {axDetail.reads}
-								</Text>
-								<View style={styles.axInfoItem}>
-									{isPraised?
-										<FontAwesome name="thumbs-o-up"
-													 size={20}
-													 style={styles.swordInfoItemIcon}
-													 color="#f00"
-													 onPress={() => this.handleMethod('removePraise')}
-										/>
-										:<FontAwesome name="thumbs-o-up"
-													  size={20}
-													  style={styles.swordInfoItemIcon}
-													  onPress={() => this.handleMethod('praise')}
-										/>
-									}
-									<Text>({axDetail.praises})</Text>
-								</View>
-							</View>
-							<View>
-								{
-									isCollected?
-										<FontAwesome name="star"
-													 size={20}
-													 style={styles.swordInfoItemIcon}
-													 color={Colors.tintColor}
-													 onPress={() => this.handleMethod('removeCollect')}
-										/>
-										:<FontAwesome name="star-o"
-													  size={20}
-													  style={styles.swordInfoItemIcon}
-													  onPress={() => this.handleMethod('collect')}
-										/>
-								}
-							</View>
+							<InfoShow axDetail={axDetail} id={id} userId={userId} {...this.props}  />
 						</View>
-						{commentList.length > 0 &&
-						<View style={styles.commentContent}>
-							<Text>
-								评论 ({ commentList.length })
-							</Text>
-							{
-								commentList.map(item => (
-									<View key={item._id} style={styles.comment}>
-										<View style={styles.commentAvatar}>
-											<Avatar
-												containerStyle={styles.commentAvatarItem}
-												rounded
-												source={item.user.avatar?{uri: item.user.avatar}:avatar}
-												onPress={() => this.toUserMainPage(item.user._id)}
-											/>
-											<Text style={styles.commentUserText}>{item.user.username?item.user.username:item.user.nickname}</Text>
-											<Text>{item.user.location?item.user.location: ''}</Text>
-										</View>
-										<View style={styles.commentItem}>
-											<Text style={styles.commentItemText}>{item.content}</Text>
-											<Text style={styles.commentItemTime}>
-												{moment(item.create_time).format('MMMM Do YYYY, h:mm')}
-											</Text>
-											<Button title="回复"
-												type="clear"
-												buttonStyle={styles.commentItemButton}
-												titleStyle={{fontSize: 12, color: Colors.grayText}}
-												onPress={this.replay} />
-										</View>
-									</View>
-								))
-							}
-						</View>}
+						<Comments id={id} userId={userId} {...this.props} />
 					</View>
-				</ParallaxScrollView>}
+				</ParallaxScrollView>
 
-				{!axDetail &&
-					<LottieView source={require('../animation/loading1.json')} autoPlay loop />
-				}
+				<AddComment id={id} userId={userId} />
 
-				<View style={styles.bottom}>
-					<TextInput style={styles.commentInput}
-							   placeholder="写评论"
-							   onChangeText={text => this.onChangeComment(text)}
-							   value={this.state.comment} />
-
-					<Button title="评论" onPress={this.addComment} buttonStyle={styles.commentButton} />
-				</View>
 			</View>
-
 		);
 	}
 }
 
-AxDetail.propTypes = {
+Detail.propTypes = {
 	axDetail: PropTypes.object,     //斧头详情
-	isPraised: PropTypes.bool,      //是否点赞了
 	getAxDetail: PropTypes.func,    //获取斧头详情
 	addRead: PropTypes.func,        //添加阅读记录
-	isPraise: PropTypes.func,       //是否点赞
-	praise: PropTypes.func,         //点赞
-	removePraise: PropTypes.func,   //取消点赞
-	addComment: PropTypes.func,     //添加评论
 	removeComment: PropTypes.func,  //删除评论
-	getCommentList: PropTypes.func, //获取评论列表
-	commentList: PropTypes.array,   //评论列表
-	isCollected: PropTypes.bool,    //是否收藏了
-	isCollect: PropTypes.func,      //判断是否收藏
-	collect: PropTypes.func,        //收藏
-	removeCollect: PropTypes.func,  //取消收藏
 	route: PropTypes.object,
 	navigation: PropTypes.object
 }
@@ -279,13 +149,6 @@ const styles = StyleSheet.create({
 	axInfo: {
 		padding: 20
 	},
-	axInfoAvatar: {
-		flexDirection: 'row',
-		marginTop: -10
-	},
-	axInfoAvatarText: {
-		justifyContent: 'flex-end',
-	},
 	axAvatarItem: {
 		marginRight: 5,
 		width: 50,
@@ -293,84 +156,71 @@ const styles = StyleSheet.create({
 		borderRadius: 25
 	},
 	axContent: {
-		padding: 5,
-		fontSize: 16,
-		marginTop: 20
+		padding: 8,
+		fontSize: 18,
+		color: Colors.tintColor,
+		marginTop: 20,
+		minHeight: 150,
+		borderRadius: 8,
+		backgroundColor: Colors.borderColor2
 	},
-	axTime: {
-		fontSize: 12,
-		color: Colors.grayText,
-		marginTop: 10
-	},
-	axStatus: {
-		flexDirection: 'row',
+	loading: {
+		height: 80,
 		alignItems: 'center',
 		marginTop: 10
 	},
-	axRead: {
-		fontSize: 15,
-		color: Colors.mainText,
-		marginRight: 10
-	},
-	axInfoItem: {
-		flexDirection: 'row'
-	},
-	commentContent: {
-		padding: 20,
-		paddingBottom: 50
-	},
-	comment: {
-		borderBottomColor: Colors.borderColor,
-		borderBottomWidth: 1,
-		marginTop: 10
-	},
-	commentUserText: {
-		fontSize: 13,
-		color: Colors.grayText
-	},
-	commentAvatar: {
-		flexDirection: 'row',
-	},
-	commentAvatarItem: {
-		marginRight: 5
-	},
-	commentItem: {
-		marginTop: 5,
-		paddingLeft: 40
-	},
-	commentItemText: {
-		fontSize: 16
-	},
-	commentItemTime: {
-		fontSize: 14,
-		color: Colors.grayText
-	},
-	commentItemButton: {
-		width: 50,
-		height: 30
-	},
-	bottom: {
-		flexDirection: 'row',
-		justifyContent: 'space-between',
-		backgroundColor: Colors.grayBg,
-		padding: 8,
-		paddingLeft: 10,
-		position: 'absolute',
-		bottom: 0,
+	detailHeader: {
 		width: width,
-		height: 50,
+		backgroundColor: Colors.whiteBg,
+		height: 65,
+		paddingLeft: 20,
+		opacity: 0.8,
 	},
-	commentInput: {
-		borderWidth: 1,
-		borderColor: Colors.borderColorGray,
-		borderRadius: 20,
-		width: width - 100,
-		paddingLeft: 10
+	place: {
+		width: width,
+		height: 25,
 	},
-	commentButton: {
-		height: 30
+	headerShow: {
+		flexDirection: 'row',
+		alignItems: 'center',
+	},
+	headerShowText: {
+		color: Colors.tintColor,
+		fontSize: 18,
+		fontWeight: '600',
+		marginLeft: 10
 	}
-
 });
 
-export default AxDetail;
+const mapStateToProps = (state) => {
+	return {
+		axDetail: state.ax.axDetail,            //斧头详情
+	}
+}
+
+const mapDispatchToProps = (dispatch) => {
+	return {
+		/* 获取斧头详情 */
+		getAxDetail: (id) => {
+			http({url: API_AX + `/${id}`}).then(res => {
+				dispatch(ax.getAxDetail(res));
+			});
+		},
+
+		/* 添加阅读纪录 */
+		addRead: (data) => {
+			http({method: 'POST', url: API_AX_READ, data}).then(res => {
+
+			});
+		},
+
+		/* 删除评论 */
+		removeComment: (data) => {
+			http({method: 'DELETE', url: API_COMMENT, data}).then(res => {
+				dispatch(comment.removeComment(res));
+			});
+		},
+	}
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Detail);

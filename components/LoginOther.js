@@ -4,9 +4,6 @@ import {
 	StyleSheet,
 	Dimensions,
 	TextInput,
-	Image,
-	Text,
-	TouchableOpacity
 } from 'react-native';
 import {
 	Button
@@ -49,7 +46,7 @@ class LoginOther extends React.Component{
 		let params = { username, password };
 		this.props.login(params).then( res => {
 			if(res){
-				global.storeData('userInfo', res.userInfo).then(data => {
+				global.storeData('userInfo', JSON.stringify(res.userInfo)).then(data => {
 					global.storeData('token', res.token);
 					this.props.navigation.reset({
 						routes: [{ name: 'BottomTabNavigator' }],
@@ -105,6 +102,7 @@ class LoginOther extends React.Component{
 LoginOther.propTypes = {
 	data: PropTypes.object, //用户信息
 	login: PropTypes.func,  //登录
+	navigation: PropTypes.object
 }
 const styles = StyleSheet.create({
 	content: {

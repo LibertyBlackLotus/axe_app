@@ -12,11 +12,11 @@ import {
 } from 'react-native';
 import PropTypes from 'prop-types';
 import moment from 'moment';
-import Colors from "../constants/Colors";
-import {getUserId} from '../utils';
-import http from "../store/server";
-import {API_AX} from "../store/apiUrl";
-import {ax} from "../store/actions";
+import Colors from "../../../constants/Colors";
+import {getUserId} from '../../../utils';
+import http from "../../../store/server";
+import {API_AX} from "../../../store/apiUrl";
+import {ax} from "../../../store/actions";
 import LottieView from "lottie-react-native";
 
 const {width} = Dimensions.get('window');
@@ -32,6 +32,7 @@ const Item = (props) => {
 	return (
 		<TouchableOpacity key={item._id}
 						  style={styles.axImgView}
+						  activeOpacity={0.8}
 						  onPress={() => toDetail(item._id)}>
 			<Text style={styles.title}>
 				{item.content}
@@ -96,11 +97,11 @@ const Ax = (props) => {
 	const footer = () => {
 		if(more){
 			return (<View style={styles.dixian}>
-				<LottieView source={require('../animation/loading.json')} autoPlay loop />
+				<LottieView source={require('../../../animation/loading.json')} autoPlay loop />
 			</View>);
 		}else{
 			return (<View style={styles.dixian}>
-				<LottieView source={require('../animation/baseLine.json')} autoPlay />
+				<LottieView source={require('../../../animation/baseLine.json')} autoPlay />
 				<Text style={styles.dixianText}>~~木有了~~</Text>
 			</View>);
 		}
@@ -121,7 +122,7 @@ const Ax = (props) => {
 		<>
 			<View style={styles.timeline}>
 				<Text>时光机</Text>
-				<LottieView source={require('../animation/man-and-phone.json')} autoPlay loop />
+				<LottieView source={require('../../../animation/man-and-phone.json')} autoPlay loop />
 			</View>
 			<FlatList
 				data={axListUser}

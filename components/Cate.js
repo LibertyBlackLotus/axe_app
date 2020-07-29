@@ -1,17 +1,11 @@
 import React from 'react';
 import {
 	View,
-	Button,
 	Text,
-	ScrollView,
 	StyleSheet,
-	Image,
 	Dimensions,
-	TouchableOpacity
 } from 'react-native';
 import PropTypes from 'prop-types';
-import {getUserId} from '../utils';
-import Colors from "../constants/Colors";
 
 const {width, height} = Dimensions.get('window');
 
@@ -19,10 +13,6 @@ class Cate extends React.Component {
 	constructor(props) {
 		super(props);
 	}
-
-	async componentDidMount() {
-	}
-
 	render() {
 		return (
 			<View>

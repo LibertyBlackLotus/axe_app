@@ -1,76 +1,73 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
+import {connect} from "react-redux";
 import {
 	View,
 	ScrollView,
 	StyleSheet,
 	Dimensions,
 } from 'react-native';
-import Search from 'react-native-search-box';
-import {
-	ListItem
-} from 'react-native-elements';
+import {ListItem} from 'react-native-elements';
 import PropTypes from 'prop-types';
-import Colors from "../constants/Colors";
-import AxCommunity from "../containers/AxCommunity";
+import Search from 'react-native-search-box';
+
+import Colors from "../../../constants/Colors";
+import AxCommunity from "./AxCommunity";
+import http from "../../../store/server";
+import {API_COMMUNITY} from "../../../store/apiUrl";
+import {community} from "../../../store/actions";
 
 const {width} = Dimensions.get('window');
 
-class Community extends React.Component {
-	constructor(props) {
-		super(props);
+const Community = (props) => {
+	const {communityList, getCommunityList} = props;
 
-		this.state = {
-			communityId : null
-		};
+	const [communityId, setCommunityId] = useState('');
+	useEffect(() => {
+		getData();
+	}, []);
 
-		this.selectCommunity = this.selectCommunity.bind(this);
-	}
-
-	componentDidMount() {
-		this.props.getCommunityList().then(res => {
+	const getData = () => {
+		getCommunityList().then(res => {
 			let firstId = res[0]._id;
-			this.setState({communityId: firstId});
+			setCommunityId(firstId);
 		});
 	}
 
 	//选择社区
-	selectCommunity(id){
-		this.setState({communityId: id});
+	const selectCommunity = (id) => {
+		setCommunityId(id);
 	}
 
-	render() {
-		let {communityList} = this.props;
-		let {communityId} = this.state;
-		return (
-			<View style={{flex: 1}}>
-				<View style={styles.place}></View>
-				<Search
-					onFocus={this.onFocus}
-					cancelButtonWidth={50}
-					placeholder={'搜索'}
-					backgroundColor={Colors.tintColor}
-				/>
-				<View style={styles.container}>
-					<View style={styles.menu}>
-						<ScrollView showsVerticalScrollIndicator={false}>
-							{communityList.map(item => (
-								<ListItem key={item._id}
-										  title={item.name}
-										  containerStyle={communityId == item._id&&styles.containerStyle}
-										  titleStyle={communityId == item._id&&styles.titleStyle}
-										  onPress={() => this.selectCommunity(item._id)}
-								/>
-							))}
-						</ScrollView>
-					</View>
-
-					<View style={styles.content}>
-						<AxCommunity id={communityId} {...this.props}></AxCommunity>
-					</View>
+	return (
+		<View style={{flex: 1}}>
+			<View style={styles.place}></View>
+			<Search
+				cancelButtonWidth={50}
+				placeholder={'搜索'}
+				backgroundColor={Colors.tintColor}
+			/>
+			<View style={styles.container}>
+				<View style={styles.menu}>
+					<ScrollView showsVerticalScrollIndicator={false}>
+						{communityList !== '' && communityList.map(item => (
+							<ListItem key={item._id}
+									  title={item.name}
+									  containerStyle={communityId == item._id&&styles.containerStyle}
+									  titleStyle={communityId == item._id&&styles.titleStyle}
+									  onPress={() => selectCommunity(item._id)}
+							/>
+						))}
+					</ScrollView>
 				</View>
+
+				{communityId !== '' &&
+					<View style={styles.content}>
+						<AxCommunity id={communityId} {...props}></AxCommunity>
+					</View>
+				}
 			</View>
-		);
-	}
+		</View>
+	);
 }
 
 Community.propTypes = {
@@ -102,4 +99,22 @@ const styles = StyleSheet.create({
 	},
 });
 
-export default Community;
+const mapStateToProps = (state) => {
+	return {
+		communityList: state.community.communityList,   //社区列表
+	}
+}
+
+const mapDispatchToProps = (dispatch) => {
+	return {
+		/* 获取社区列表 */
+		getCommunityList: () => {
+			return http({url: API_COMMUNITY}).then(res => {
+				dispatch(community.getCommunityList(res));
+				return Promise.resolve(res);
+			});
+		}
+	}
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Community);

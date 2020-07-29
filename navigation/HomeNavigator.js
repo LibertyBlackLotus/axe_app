@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import {createStackNavigator} from '@react-navigation/stack';
-import Home from '../containers/Home';
+// import Home from '../components/Home';
+import Home from '../components/axe/views/Tabs';
 import Colors from '../constants/Colors'
 const Stack = createStackNavigator();
 

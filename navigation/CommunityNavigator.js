@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {createStackNavigator} from '@react-navigation/stack';
 import Colors from '../constants/Colors'
-import Community from '../containers/Community';
+import {view as Community} from '../components/community';
 const Stack = createStackNavigator();
 
 class CommunityNavigator extends Component {

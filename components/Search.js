@@ -6,7 +6,6 @@ import {
 	Dimensions,
 	ScrollView,
 	TouchableOpacity,
-	RefreshControl,
 	Text
 } from 'react-native';
 import PropTypes from 'prop-types';
@@ -35,12 +34,7 @@ class Search extends React.Component {
 		console.log('--onFocus---');
 	}
 	//搜索
-	onSearch = (searchText) => {
-		// return new Promise((resolve, reject) => {
-		// 	console.log(searchText);
-		// 	console.log('Add your search function here.');
-		// 	resolve();
-		// });
+	onSearch(searchText){
 		let params = {
 			keywords: searchText
 		};
@@ -49,7 +43,7 @@ class Search extends React.Component {
 
 	//跳转至详情
 	toDetail(id) {
-		this.props.navigation.navigate('AxDetail', {id});
+		this.props.navigation.navigate('Detail', {id});
 	}
 
 	render() {
@@ -58,7 +52,6 @@ class Search extends React.Component {
 			<View>
 				<View style={styles.place}></View>
 				<SearchBar
-					ref="search_box"
 					onSearch={this.onSearch}
 					onFocus={this.onFocus}
 					cancelButtonWidth={50}
@@ -72,7 +65,7 @@ class Search extends React.Component {
 							<TouchableOpacity key={item._id}
 											  style={styles.axImgView}
 											  onPress={() => this.toDetail(item._id)}>
-								<Image source={{uri: item.ax[0].url}} style={styles.axImg}/>
+								<Image source={{uri: item.ax.name}} style={styles.axImg}/>
 								<Text>{item.content}</Text>
 							</TouchableOpacity>
 						))}
@@ -87,6 +80,7 @@ class Search extends React.Component {
 Search.propTypes = {
 	axListSearch: PropTypes.array,  //搜索斧头结果
 	searchAx: PropTypes.func,  	    //搜索斧头
+	navigation: PropTypes.object
 };
 
 const styles = StyleSheet.create({

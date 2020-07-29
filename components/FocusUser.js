@@ -16,7 +16,7 @@ class FocusUser extends Component {
 		super(props);
 		this.state = {
 			avatar: require('../assets/avatar.png'),
-			id: null
+			id: ''
 		};
 	}
 
@@ -43,9 +43,7 @@ class FocusUser extends Component {
 		const {focusUserList} = this.props;
 		if(focusUserList.length == 0) return null;
 		return (
-			<ScrollView horizontal={true}
-						style={styles.focusUserContainer}
-						contentContainerStyle={{alignItems: 'center'}}>
+			<ScrollView horizontal={true} style={styles.focusUserContainer} contentContainerStyle={{alignItems: 'center'}}>
 				{ focusUserList && focusUserList.map(item => (
 					<View key={item._id} style={styles.focusUser}>
 						<Avatar
@@ -65,6 +63,8 @@ class FocusUser extends Component {
 FocusUser.propTypes = {
 	focusUserList: PropTypes.array, //关注用户列表
 	getFocusList: PropTypes.func,   //获取关注用户列表
+	id: [PropTypes.number, PropTypes.string],
+	navigation: PropTypes.object
 }
 
 const styles = StyleSheet.create({

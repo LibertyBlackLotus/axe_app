@@ -1,16 +1,19 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import {
 	View,
 	StyleSheet,
-	Dimensions,
-	ScrollView
+	Dimensions
 } from 'react-native';
 import PropTypes from 'prop-types';
 import Search from 'react-native-search-box';
-import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
+import { TabView, TabBar } from 'react-native-tab-view';
 import Colors from "../constants/Colors";
 import AxFocus from '../containers/AxFocus';
-import {getUserId} from '../utils';
+import AxHome from './axe/views/AxHome';
+import http from "../store/server";
+import {API_AX} from "../store/apiUrl";
+import {ax} from "../store/actions";
 
 const {width, height} = Dimensions.get('window');
 
@@ -24,7 +27,10 @@ const renderTabBar = props => (
 		indicatorStyle={styles.myTabBarIndi}
 		style={styles.myTabBar}
 		activeColor={Colors.tintColor}
-		inactiveColor='#ccc'
+		pressColor={Colors.tintColor}
+		inactiveColor={Colors.mainText}
+		tabStyle={styles.tabStyle}
+		scrollEnabled={true}
 	/>
 );
 
@@ -35,17 +41,20 @@ class Home extends React.Component {
 			refreshing: false,
 			index: 0,
 			routes: [
-				{ key: '1', title: '关注' },
-				{ key: '2', title: '推荐' },
+				{ key: '1', title: '首页' },
+				// { key: '2', title: '关注' },
+				// { key: '3', title: '推荐' },
 			],
 			renderScene: ({ route }) => {
 				switch (route.key) {
-					case '1':
-						return <AxFocus {...this.props} />;
-					case '2':
-						return <AxFocus {...this.props} />;
-					default:
-						return null;
+				case '1':
+					return <AxHome {...this.props} />;
+				case '2':
+					return <AxFocus {...this.props} />;
+				case '3':
+					return <AxFocus {...this.props} />;
+				default:
+					return null;
 				}
 			}
 		};
@@ -66,26 +75,24 @@ class Home extends React.Component {
 	render() {
 		const {index, routes, renderScene} = this.state;
 		return (
-			<View style={{paddingBottom: 60}}>
+			<>
 				<View style={styles.place}></View>
 				<Search
-				onFocus={this.onFocus}
-				cancelButtonWidth={50}
-				placeholder={'搜索'}
-				backgroundColor={Colors.tintColor}
+					onFocus={this.onFocus}
+					cancelButtonWidth={50}
+					placeholder={'搜索'}
+					backgroundColor={Colors.tintColor}
 				/>
-
-				<ScrollView>
-					<TabView
-						navigationState={{ index, routes }}
-						renderTabBar={renderTabBar}
-						renderScene={renderScene}
-						onIndexChange={this.setIndex}
-						initialLayout={initialLayout}
-						style={styles.myTabs}
-					/>
-				</ScrollView>
-			</View>
+				<TabView
+					navigationState={{ index, routes }}
+					renderTabBar={renderTabBar}
+					renderScene={renderScene}
+					onIndexChange={this.setIndex}
+					initialLayout={initialLayout}
+					lazy={true}
+					style={styles.myTabs}
+				/>
+			</>
 		);
 	}
 }
@@ -93,6 +100,7 @@ class Home extends React.Component {
 Home.propTypes = {
 	axList: PropTypes.array,        //斧头列表
 	getAxList: PropTypes.func, 	    //获取斧头列表
+	navigation: PropTypes.object
 };
 
 const styles = StyleSheet.create({
@@ -120,13 +128,31 @@ const styles = StyleSheet.create({
 	myTabBar: {
 		backgroundColor: Colors.noticeText,
 	},
+	tabStyle: {
+		width: 70
+	},
 	myTabBarIndi: {
 		backgroundColor: Colors.tintColor,
-		textAlign: 'center',
-		justifyContent: 'center',
-		alignItems: 'center'
-	}
+	},
 
 });
 
-export default Home;
+const mapStateToProps = (state) => {
+	return {
+		axList: state.ax.axList,             //所有斧头列表
+	}
+}
+
+const mapDispatchToProps = (dispatch) => {
+	return {
+		/* 获取所有斧头 */
+		getAxList: () => {
+			return http({url: API_AX}).then(res => {
+				dispatch(ax.getAxList(res));
+				return Promise.resolve(res);
+			});
+		}
+	}
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Home);

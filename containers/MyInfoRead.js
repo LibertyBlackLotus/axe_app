@@ -8,7 +8,7 @@ import {
 	API_SWORD_READ
 } from '../store/apiUrl';
 
-import MyInfoRead from '../components/MyInfoRead';
+import MyInfoRead from '../components/my/views/MyInfoRead';
 
 const mapStateToProps = (state) => {
 	return {
